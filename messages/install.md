@@ -8,7 +8,7 @@ cargo install rustfmt
 
 If the plugin can't find the executable, open Preferences -> Package Settings ->
 RustFmt -> Settings. Run `which rustfmt` and set the resulting path as the
-`executable` setting. On my MacOS system, the path looms like this:
+`executable` setting. On my MacOS system, the path looks like this:
 
 ```sublime-settings
   "executable": "/Users/username/.cargo/bin/rustfmt"
