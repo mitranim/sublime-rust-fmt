@@ -1,0 +1,33 @@
+[
+  {
+    "id": "preferences",
+    "children": [
+      {
+        "id": "package-settings",
+        "children": [
+          {
+            "caption": "RustFmt",
+            "children": [
+              {
+                "caption": "Settings",
+                "command": "edit_settings",
+                "args": {
+                  "base_file": "${packages}/RustFmt/RustFmt.sublime-settings",
+                  "default": "// RustFmt Settings - User\n{\n\t$0\n}\n"
+                }
+              },
+              {
+                "caption": "Key Bindings",
+                "command": "edit_settings",
+                "args": {
+                  "base_file": "${packages}/RustFmt/Default.sublime-keymap",
+                  "default": "// RustFmt Key Bindings - User\n{\n\t$0\n}\n"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

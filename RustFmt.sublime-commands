@@ -1,0 +1,6 @@
+[
+  {
+    "caption": "RustFmt: Format Buffer",
+    "command": "rust_fmt_format_buffer"
+  }
+]
