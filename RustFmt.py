@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 import subprocess as sub
 import os
+import sys
 
 from .lib.myers_diff import myers_diffs, cleanup_efficiency, Ops
 
@@ -35,15 +36,17 @@ def process_startup_info():
     return startupinfo
 
 
-def run_format(input):
-    return sub.Popen(
-        [settings_get('executable'), '--write-mode=display'],
+def run_format(input, encoding):
+    proc = sub.Popen(
+        args=[settings_get('executable'), '--write-mode=display'],
         stdin=sub.PIPE,
         stdout=sub.PIPE,
         stderr=sub.PIPE,
         startupinfo=process_startup_info(),
-        universal_newlines=True
-    ).communicate(input=input)
+        universal_newlines=False
+    )
+    (stdout, stderr) = proc.communicate(input=bytes(input, encoding=encoding))
+    return (stdout.decode(encoding), stderr.decode(encoding))
 
 
 class RustFmtViewMergeException(Exception):
@@ -77,10 +80,12 @@ class rust_fmt_format_buffer(sublime_plugin.TextCommand):
 
     def run(self, edit):
         content = self.view.substr(sublime.Region(0, self.view.size()))
-        (output, error) = run_format(input=content)
 
-        if error:
-            print('RustFmt', error)
+        (stdout, stderr) = run_format(input=content, encoding=self.view.encoding())
+
+        if stderr:
+            print('RustFmt error:', file=sys.stderr)
+            print(stderr, file=sys.stderr)
             return
 
         self.view.settings().set('translate_tabs_to_spaces', True)
@@ -92,14 +97,14 @@ class rust_fmt_format_buffer(sublime_plugin.TextCommand):
         # Saving and restoring scroll position doesn't seem to work.
 
         # position = self.view.viewport_position()
-        # self.view.replace(edit, sublime.Region(0, self.view.size()), output)
+        # self.view.replace(edit, sublime.Region(0, self.view.size()), stdout)
         # self.view.set_viewport_position(xy=position, animate=False)
 
         # (2) Working approach
 
         # This ridiculously convoluted method preserves the scroll position
 
-        merge_into_view(self.view, edit, output)
+        merge_into_view(self.view, edit, stdout)
 
 
 class rust_fmt_listener(sublime_plugin.EventListener):
