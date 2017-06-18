@@ -49,6 +49,11 @@ def run_format(input, encoding):
     return (stdout.decode(encoding), stderr.decode(encoding))
 
 
+def view_encoding(view):
+    encoding = view.encoding()
+    return 'UTF-8' if encoding == 'Undefined' else encoding
+
+
 class RustFmtViewMergeException(Exception):
     pass
 
@@ -81,7 +86,7 @@ class rust_fmt_format_buffer(sublime_plugin.TextCommand):
     def run(self, edit):
         content = self.view.substr(sublime.Region(0, self.view.size()))
 
-        (stdout, stderr) = run_format(input=content, encoding=self.view.encoding())
+        (stdout, stderr) = run_format(input=content, encoding=view_encoding(self.view))
 
         if stderr:
             print('RustFmt error:', file=sys.stderr)
