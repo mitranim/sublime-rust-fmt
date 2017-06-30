@@ -51,6 +51,13 @@ RustFmt -> Settings. Run `which rustfmt` and set the resulting path as the
   "executable": "/Users/username/.cargo/bin/rustfmt"
 ```
 
+The `executable` setting accepts either a string (as before) or a list of
+command line arguments:
+
+```sublime-settings
+  "executable": ["rustup", "run", "nightly", "rustfmt"]
+```
+
 ## Commands
 
 Open the command palette with `Shift+Super+P` or `Shift+Ctrl+P`.

@@ -38,7 +38,7 @@ def process_startup_info():
 
 def run_format(input, encoding):
     proc = sub.Popen(
-        args=[settings_get('executable'), '--write-mode=display'],
+        args=(to_list(settings_get('executable')) + ['--write-mode=display']),
         stdin=sub.PIPE,
         stdout=sub.PIPE,
         stderr=sub.PIPE,
@@ -47,6 +47,11 @@ def run_format(input, encoding):
     )
     (stdout, stderr) = proc.communicate(input=bytes(input, encoding=encoding))
     return (stdout.decode(encoding), stderr.decode(encoding))
+
+
+def to_list(value):
+    if isinstance(value, list): return value
+    return [value]
 
 
 def view_encoding(view):

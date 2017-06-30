@@ -1,4 +1,4 @@
-## RustFmt Installation
+## Installation
 
 Make sure you have the `rustfmt` executable in your $PATH. Install it with Cargo:
 
