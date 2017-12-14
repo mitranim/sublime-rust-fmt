@@ -28,7 +28,7 @@ cargo install rustfmt
 
 ### Manual
 
-1. Open Sublime Text menu -> Preferences -> Browse Packages. This should open
+1. Open Sublime Text menu → Preferences → Browse Packages. This should open
    the packages folder in your OS file manager.
 
 2. Clone repo:
@@ -43,16 +43,15 @@ By default, RustFmt will autoformat files before save. You can trigger it
 manually with the `Ctrl+Super+k` hotkey or the `RustFmt: Format Buffer` command
 in the command palette.
 
-If the plugin can't find the executable, open Preferences -> Package Settings ->
-RustFmt -> Settings. Run `which rustfmt` and set the resulting path as the
+If the plugin can't find the executable, open Preferences → Package Settings →
+RustFmt → Settings. Run `which rustfmt` and set the resulting path as the
 `executable` setting. On my MacOS system, the path looks like this:
 
 ```sublime-settings
   "executable": "/Users/username/.cargo/bin/rustfmt"
 ```
 
-The `executable` setting accepts either a string (as before) or a list of
-command line arguments:
+The `executable` setting also accepts a list of command line arguments:
 
 ```sublime-settings
   "executable": ["rustup", "run", "nightly", "rustfmt"]
@@ -66,7 +65,7 @@ Open the command palette with `Shift+Super+P` or `Shift+Ctrl+P`.
 
 ## Settings
 
-Open Sublime Text menu -> Preferences -> Package Settings -> RustFmt -> Settings.
+Open Sublime Text menu → Preferences → Package Settings → RustFmt → Settings.
 
 ```sublime-settings
 {
