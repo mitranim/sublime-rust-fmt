@@ -43,18 +43,43 @@ By default, RustFmt will autoformat files before save. You can trigger it
 manually with the `Ctrl+Super+k` hotkey or the `RustFmt: Format Buffer` command
 in the command palette.
 
-If the plugin can't find the executable, open Preferences → Package Settings →
-RustFmt → Settings. Run `which rustfmt` and set the resulting path as the
-`executable` setting. On my MacOS system, the path looks like this:
+If the plugin can't find the executable:
+
+  * run `which rustfmt` to get the absolute executable path
+  * set it as the `executable` setting, see [Settings](#settings) below
+
+On my MacOS system, the path looks like this:
 
 ```sublime-settings
   "executable": "/Users/username/.cargo/bin/rustfmt"
 ```
 
-The `executable` setting also accepts a list of command line arguments:
+`executable` also accepts a list of command line arguments:
 
 ```sublime-settings
   "executable": ["rustup", "run", "nightly", "rustfmt"]
+```
+
+## Settings
+
+To see and override the available settings, open:
+
+```
+Preferences → Package Settings → RustFmt → Settings
+```
+
+RustFmt looks for settings in the following places:
+
+  * `"RustFmt"` dict in general Sublime settings, possibly project-specific
+  * `RustFmt.sublime-settings`, default or user-created
+
+The general Sublime settings take priority. To override them on a per-project
+basis, create a `"RustFmt"` entry:
+
+```sublime-settings
+  "RustFmt": {
+    "format_on_save": false
+  }
 ```
 
 ## Commands
@@ -62,16 +87,3 @@ The `executable` setting also accepts a list of command line arguments:
 Open the command palette with `Shift+Super+P` or `Shift+Ctrl+P`.
 
 * `RustFmt: Format Buffer` (`Ctrl+Super+k`)
-
-## Settings
-
-Open Sublime Text menu → Preferences → Package Settings → RustFmt → Settings.
-
-```sublime-settings
-{
-  // Format files automatically when saving
-  "format_on_save": true,
-  // Path to formatter executable; set to absolute path if plugin can't find it
-  "executable": "rustfmt"
-}
-```

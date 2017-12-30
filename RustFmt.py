@@ -8,6 +8,7 @@ from .lib.myers_diff import myers_diffs, cleanup_efficiency, Ops
 
 
 SETTINGS = 'RustFmt.sublime-settings'
+DICT_KEY = 'RustFmt'
 
 
 def is_rust_view(view):
@@ -18,13 +19,11 @@ def is_windows():
     return os.name == 'nt'
 
 
-def settings_get(key):
+def settings_get(view, key):
+    global_dict = view.settings().get(DICT_KEY)
+    if isinstance(global_dict, dict) and key in global_dict:
+        return global_dict[key]
     return sublime.load_settings(SETTINGS).get(key)
-
-
-def settings_set(key):
-    sublime.load_settings(SETTINGS).set(key)
-    sublime.save_settings(SETTINGS)
 
 
 def process_startup_info():
@@ -36,9 +35,9 @@ def process_startup_info():
     return startupinfo
 
 
-def run_format(input, encoding):
+def run_format(view, input, encoding):
     proc = sub.Popen(
-        args=(to_list(settings_get('executable')) + ['--write-mode=display']),
+        args=(to_list(settings_get(view, 'executable')) + ['--write-mode=display']),
         stdin=sub.PIPE,
         stdout=sub.PIPE,
         stderr=sub.PIPE,
@@ -91,7 +90,11 @@ class rust_fmt_format_buffer(sublime_plugin.TextCommand):
     def run(self, edit):
         content = self.view.substr(sublime.Region(0, self.view.size()))
 
-        (stdout, stderr) = run_format(input=content, encoding=view_encoding(self.view))
+        (stdout, stderr) = run_format(
+            view=self.view,
+            input=content,
+            encoding=view_encoding(self.view)
+        )
 
         if stderr:
             print('RustFmt error:', file=sys.stderr)
@@ -119,5 +122,5 @@ class rust_fmt_format_buffer(sublime_plugin.TextCommand):
 
 class rust_fmt_listener(sublime_plugin.EventListener):
     def on_pre_save(self, view):
-        if is_rust_view(view) and settings_get('format_on_save'):
+        if is_rust_view(view) and settings_get(view, 'format_on_save'):
             view.run_command('rust_fmt_format_buffer')
