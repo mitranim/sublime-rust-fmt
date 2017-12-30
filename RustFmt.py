@@ -35,9 +35,44 @@ def process_startup_info():
     return startupinfo
 
 
+def walk_to_root(path):
+    if path is None:
+        return
+
+    if os.path.isdir(path):
+        yield path
+
+    while not os.path.samefile(path, os.path.dirname(path)):
+        path = os.path.dirname(path)
+        yield path
+
+
+def config_for_dir(dir):
+    path = os.path.join(dir, 'rustfmt.toml')
+    if os.path.exists(path) and os.path.isfile(path):
+        return path
+
+    hidden_path = os.path.join(dir, '.rustfmt.toml')
+    if os.path.exists(hidden_path) and os.path.isfile(hidden_path):
+        return hidden_path
+
+    return None
+
+
+def first(iterable, condition = lambda x: True):
+    return next((x for x in iterable if condition(x)), None)
+
+
 def run_format(view, input, encoding):
+    args = to_list(settings_get(view, 'executable')) + ['--write-mode=display']
+
+    iterable = map(config_for_dir, walk_to_root(view.file_name()))
+    config = first(iterable, lambda x: x is not None)
+    if config is not None:
+        args += ['--config-path={}'.format(config)]
+
     proc = sub.Popen(
-        args=(to_list(settings_get(view, 'executable')) + ['--write-mode=display']),
+        args=args,
         stdin=sub.PIPE,
         stdout=sub.PIPE,
         stderr=sub.PIPE,
