@@ -1,5 +1,11 @@
 {
+  // If true, Format Buffer will be run when a buffer is saved.
   "format_on_save": true,
+  // Can be a string (path) or a list (executable + args).
   "executable": "rustfmt",
+  // Whether to tell `rustfmt` to search for the TOML config in the current
+  // folder. For anonymous buffers, attempts to guess the current folder from
+  // the window. Off by default because at the time of writing, the default
+  // version of `rustfmt` doesn't support configs.
   "use_config_path": false
 }
