@@ -63,18 +63,17 @@ def first(iterable, condition = lambda x: True):
     return next((x for x in iterable if condition(x)), None)
 
 
-def append_config_path(view, args):
-    iterable = map(config_for_dir, walk_to_root(view.file_name()))
-    config = first(iterable, lambda x: x is not None)
-    if config is not None:
-        args += ['--config-path={}'.format(config)]
+def find_config_path(path):
+    return first(map(config_for_dir, walk_to_root(path)), lambda x: x is not None)
 
 
 def run_format(view, input, encoding):
-    args = to_list(settings_get(view, 'executable')) + ['--write-mode=display']
+    args = to_list(settings_get(view, 'executable')) + ['--write-mode', 'display']
 
     if settings_get(view, 'use_config_path'):
-        append_config_path(view, args)
+        config = find_config_path(view.file_name())
+        if config:
+            args += ['--config-path', config]
 
     proc = sub.Popen(
         args=args,
