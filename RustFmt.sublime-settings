@@ -1,4 +1,5 @@
 {
   "format_on_save": true,
-  "executable": "rustfmt"
+  "executable": "rustfmt",
+  "use_config_path": false
 }
