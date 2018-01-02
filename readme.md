@@ -63,7 +63,7 @@ On my MacOS system, the path looks like this:
 
 ## Settings
 
-See [`RustFmt.sublime-settings`](#RustFmt.sublime-settings) for all available
+See [`RustFmt.sublime-settings`](RustFmt.sublime-settings) for all available
 settings. To see and override the settings in Sublime, open:
 
 ```
