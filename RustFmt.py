@@ -71,7 +71,8 @@ def run_format(view, input, encoding):
     args = to_list(settings_get(view, 'executable')) + ['--write-mode', 'display']
 
     if settings_get(view, 'use_config_path'):
-        config = find_config_path(view.file_name())
+        path = view.file_name() or first(view.window().folders(), bool)
+        config = path and find_config_path(path)
         if config:
             args += ['--config-path', config]
 
