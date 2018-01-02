@@ -5,6 +5,7 @@ RustFmt is a Sublime Text 3 plugin that auto-formats Rust code with
 
 Unlike `BeautifyRust`, it's fast and works on buffers that have yet not been
 saved as files. Unlike `RustFormat`, it preserves the buffer scroll position.
+It also supports `rustfmt.toml`.
 
 ## Dependencies
 
@@ -62,7 +63,8 @@ On my MacOS system, the path looks like this:
 
 ## Settings
 
-To see and override the available settings, open:
+See [`RustFmt.sublime-settings`](#RustFmt.sublime-settings) for all available
+settings. To see and override the settings in Sublime, open:
 
 ```
 Preferences → Package Settings → RustFmt → Settings

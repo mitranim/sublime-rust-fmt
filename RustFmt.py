@@ -26,6 +26,7 @@ def settings_get(view, key):
     return sublime.load_settings(SETTINGS).get(key)
 
 
+# Copied from other plugins, haven't personally tested on Windows
 def process_startup_info():
     if not is_windows():
         return None
