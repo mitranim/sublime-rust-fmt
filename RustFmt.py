@@ -4,8 +4,6 @@ import subprocess as sub
 import os
 import sys
 
-from .lib.myers_diff import myers_diffs, cleanup_efficiency, Ops
-
 
 SETTINGS = 'RustFmt.sublime-settings'
 DICT_KEY = 'RustFmt'
@@ -19,7 +17,7 @@ def is_windows():
     return os.name == 'nt'
 
 
-def settings_get(view, key):
+def get_setting(view, key):
     global_dict = view.settings().get(DICT_KEY)
     if isinstance(global_dict, dict) and key in global_dict:
         return global_dict[key]
@@ -69,9 +67,14 @@ def find_config_path(path):
 
 
 def run_format(view, input, encoding):
-    args = to_list(settings_get(view, 'executable')) + ['--write-mode', 'display']
+    args = to_list(get_setting(view, 'executable'))
 
-    if settings_get(view, 'use_config_path'):
+    if get_setting(view, 'legacy_write_mode_option'):
+        args += ['--write-mode', 'display']
+    else:
+        args += ['--emit', 'stdout']
+
+    if get_setting(view, 'use_config_path'):
         path = view.file_name() or first(view.window().folders(), bool)
         config = path and find_config_path(path)
         if config:
@@ -99,42 +102,18 @@ def view_encoding(view):
     return 'UTF-8' if encoding == 'Undefined' else encoding
 
 
-class RustFmtViewMergeException(Exception):
-    pass
-
-
-def merge_into_view(view, edit, new_src):
-    def subview(start, end):
-        return view.substr(sublime.Region(start, end))
-    diffs = myers_diffs(subview(0, view.size()), new_src)
-    cleanup_efficiency(diffs)
-    merged_len = 0
-    for (op_type, patch) in diffs:
-        patch_len = len(patch)
-        if op_type == Ops.EQUAL:
-            if subview(merged_len, merged_len+patch_len) != patch:
-                raise RustFmtViewMergeException('mismatch')
-            merged_len += patch_len
-        elif op_type == Ops.INSERT:
-            view.insert(edit, merged_len, patch)
-            merged_len += patch_len
-        elif op_type == Ops.DELETE:
-            if subview(merged_len, merged_len+patch_len) != patch:
-                raise RustFmtViewMergeException('mismatch')
-            view.erase(edit, sublime.Region(merged_len, merged_len+patch_len))
-
-
 class rust_fmt_format_buffer(sublime_plugin.TextCommand):
     def is_enabled(self):
         return is_rust_view(self.view)
 
     def run(self, edit):
-        content = self.view.substr(sublime.Region(0, self.view.size()))
+        view = self.view
+        content = view.substr(sublime.Region(0, view.size()))
 
         (stdout, stderr) = run_format(
-            view=self.view,
+            view=view,
             input=content,
-            encoding=view_encoding(self.view)
+            encoding=view_encoding(view)
         )
 
         if stderr:
@@ -142,26 +121,18 @@ class rust_fmt_format_buffer(sublime_plugin.TextCommand):
             print(stderr, file=sys.stderr)
             return
 
-        self.view.settings().set('translate_tabs_to_spaces', True)
+        view.settings().set('translate_tabs_to_spaces', True)
 
-        # (1) Broken approach
+        position = view.viewport_position()
 
-        # Would be so nice and simple to just replace the view buffer.
-        # Unfortunately it causes the scroll position to jump around.
-        # Saving and restoring scroll position doesn't seem to work.
+        view.replace(edit, sublime.Region(0, view.size()), stdout)
 
-        # position = self.view.viewport_position()
-        # self.view.replace(edit, sublime.Region(0, self.view.size()), stdout)
-        # self.view.set_viewport_position(xy=position, animate=False)
-
-        # (2) Working approach
-
-        # This ridiculously convoluted method preserves the scroll position
-
-        merge_into_view(self.view, edit, stdout)
+        # Works only on the main thread, hence the timer
+        restore = lambda: view.set_viewport_position(position, animate=False)
+        sublime.set_timeout(restore, 0)
 
 
 class rust_fmt_listener(sublime_plugin.EventListener):
     def on_pre_save(self, view):
-        if is_rust_view(view) and settings_get(view, 'format_on_save'):
+        if is_rust_view(view) and get_setting(view, 'format_on_save'):
             view.run_command('rust_fmt_format_buffer')

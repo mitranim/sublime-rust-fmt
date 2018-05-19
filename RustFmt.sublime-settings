@@ -6,5 +6,8 @@
   // Whether to tell `rustfmt` to search for the TOML config in the current
   // folder. For anonymous buffers, attempts to guess the current folder from
   // the window.
-  "use_config_path": true
+  "use_config_path": true,
+  // Whether to use the `--write-mode=display` option for older version of
+  // `rustfmt`. Off by default.
+  "legacy_write_mode_option": false,
 }
