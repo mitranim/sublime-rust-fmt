@@ -7,14 +7,11 @@ import sys
 
 SETTINGS = 'RustFmt.sublime-settings'
 DICT_KEY = 'RustFmt'
+IS_WINDOWS = os.name == 'nt'
 
 
 def is_rust_view(view):
     return view.score_selector(0, 'source.rust') > 0
-
-
-def is_windows():
-    return os.name == 'nt'
 
 
 def get_setting(view, key):
@@ -26,7 +23,7 @@ def get_setting(view, key):
 
 # Copied from other plugins, haven't personally tested on Windows
 def process_startup_info():
-    if not is_windows():
+    if not IS_WINDOWS:
         return None
     startupinfo = sub.STARTUPINFO()
     startupinfo.dwFlags |= sub.STARTF_USESHOWWINDOW
@@ -58,12 +55,11 @@ def config_for_dir(dir):
     return None
 
 
-def first(iterable, condition = lambda x: True):
-    return next((x for x in iterable if condition(x)), None)
-
-
 def find_config_path(path):
-    return first(map(config_for_dir, walk_to_root(path)), lambda x: x is not None)
+    for dir in walk_to_root(path):
+        config = config_for_dir(dir)
+        if config:
+            return config
 
 
 def run_format(view, input, encoding):
@@ -75,7 +71,12 @@ def run_format(view, input, encoding):
         args += ['--emit', 'stdout']
 
     if get_setting(view, 'use_config_path'):
-        path = view.file_name() or first(view.window().folders(), bool)
+        path = view.file_name()
+
+        if not path:
+            if len(view.window().folders()):
+                path = view.window().folders()[0]
+
         config = path and find_config_path(path)
         if config:
             args += ['--config-path', config]
