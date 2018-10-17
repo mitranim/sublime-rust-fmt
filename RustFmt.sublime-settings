@@ -11,8 +11,9 @@
   "use_config_path": true,
 
   // Whether to use the `--write-mode=display` option for older version of
-  // `rustfmt`. Off by default.
-  "legacy_write_mode_option": false,
+  // `rustfmt`. By default will autodetect based on `rustfmt` version. Set to
+  // `true` or `false` to override.
+  "legacy_write_mode_option": "auto",
 
   /*
   Determines the CWD of the subprocess. Possible values:

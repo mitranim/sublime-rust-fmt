@@ -3,6 +3,7 @@ import sublime_plugin
 import subprocess as sub
 import os
 import sys
+import re
 
 
 SETTINGS = 'RustFmt.sublime-settings'
@@ -86,7 +87,33 @@ def guess_cwd(view):
 def run_format(view, input, encoding):
     args = to_list(get_setting(view, 'executable'))
 
-    if get_setting(view, 'legacy_write_mode_option'):
+    legacy_write_mode_option = get_setting(view, 'legacy_write_mode_option')
+
+    if legacy_write_mode_option == 'auto':
+        proc = sub.Popen(
+            args=args + ['--version'],
+            stdin=sub.PIPE,
+            stdout=sub.PIPE,
+            stderr=sub.PIPE,
+            startupinfo=process_startup_info(),
+            universal_newlines=False,
+            cwd=guess_cwd(view),
+        )
+        (stdout, stderr) = proc.communicate(input=bytes(input, encoding=encoding))
+        stdout = stdout.decode(encoding)
+        stderr = stderr.decode(encoding)
+
+        if stderr:
+            return (stdout, stderr)
+
+        m = re.match(r'rustfmt (\d+)\.(\d+)\.(\d+)', stdout)
+        if not m:
+            return (stdout, 'Unknown format of version string')
+
+        version = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        legacy_write_mode_option = version < (0, 8, 0)
+
+    if legacy_write_mode_option:
         args += ['--write-mode', 'display']
     else:
         args += ['--emit', 'stdout']
