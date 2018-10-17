@@ -1,13 +1,32 @@
 {
   // If true, Format Buffer will be run when a buffer is saved.
   "format_on_save": true,
+
   // Can be a string (path) or a list (executable + args).
   "executable": "rustfmt",
+
   // Whether to tell `rustfmt` to search for the TOML config in the current
   // folder. For anonymous buffers, attempts to guess the current folder from
   // the window.
   "use_config_path": true,
+
   // Whether to use the `--write-mode=display` option for older version of
   // `rustfmt`. Off by default.
   "legacy_write_mode_option": false,
+
+  /*
+  Determines the CWD of the subprocess. Possible values:
+
+    - "auto": try to use the current file's directory; fall back on the project
+      root, which is assumed to be the first folder in the current window
+
+    - "project_root": use the project root, which is assumed to be the first
+      folder in the current window
+
+    - "none": don't set the CWD
+
+    - ":<dir>": use <dir>, which is assumed to be a hardcoded path; may be
+      useful for project-specific settings
+  */
+  "cwd_mode": "auto",
 }

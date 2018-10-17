@@ -62,6 +62,27 @@ def find_config_path(path):
             return config
 
 
+def guess_cwd(view):
+    mode = get_setting(view, 'cwd_mode')
+
+    if mode.startswith(':'):
+        return mode[1:]
+
+    if mode == 'none':
+        return None
+
+    if mode == 'project_root':
+        if len(view.window().folders()):
+            return view.window().folders()[0]
+        return None
+
+    if mode == 'auto':
+        if view.file_name():
+            return os.path.dirname(view.file_name())
+        elif len(view.window().folders()):
+            return view.window().folders()[0]
+
+
 def run_format(view, input, encoding):
     args = to_list(get_setting(view, 'executable'))
 
@@ -87,7 +108,8 @@ def run_format(view, input, encoding):
         stdout=sub.PIPE,
         stderr=sub.PIPE,
         startupinfo=process_startup_info(),
-        universal_newlines=False
+        universal_newlines=False,
+        cwd=guess_cwd(view),
     )
     (stdout, stderr) = proc.communicate(input=bytes(input, encoding=encoding))
     return (stdout.decode(encoding), stderr.decode(encoding))
