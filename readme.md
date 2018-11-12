@@ -31,7 +31,7 @@ cargo install rustfmt
 2. Clone repo:
 
 ```sh
-git clone https://github.com/Mitranim/sublime-rust-format.git RustFmt
+git clone https://github.com/mitranim/sublime-rust-format.git RustFmt
 ```
 
 ## Usage
