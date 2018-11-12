@@ -84,7 +84,8 @@ def guess_cwd(view):
 
 
 def run_format(view, input, encoding):
-    args = to_list(get_setting(view, 'executable'))
+    exec = get_setting(view, 'executable')
+    args = exec if isinstance(exec, list) else [exec]
 
     if get_setting(view, 'legacy_write_mode_option'):
         args += ['--write-mode', 'display']
@@ -111,13 +112,25 @@ def run_format(view, input, encoding):
         universal_newlines=False,
         cwd=guess_cwd(view),
     )
+
     (stdout, stderr) = proc.communicate(input=bytes(input, encoding=encoding))
-    return (stdout.decode(encoding), stderr.decode(encoding))
+    (stdout, stderr) = stdout.decode(encoding), stderr.decode(encoding)
 
+    if proc.returncode != 0:
+        err = sub.CalledProcessError(proc.returncode, args)
 
-def to_list(value):
-    if isinstance(value, list): return value
-    return [value]
+        if get_setting(view, 'error_messages'):
+            msg = str(err)
+            if len(stderr) > 0:
+                msg += ':\n' + stderr
+            # rustfmt stupidly prints error messages to stdout
+            elif len(stdout) > 0:
+                msg += ':\n' + stdout
+            sublime.error_message(msg)
+
+        raise err
+
+    return stdout
 
 
 def view_encoding(view):
@@ -133,18 +146,11 @@ class rust_fmt_format_buffer(sublime_plugin.TextCommand):
         view = self.view
         content = view.substr(sublime.Region(0, view.size()))
 
-        (stdout, stderr) = run_format(
+        stdout = run_format(
             view=view,
             input=content,
-            encoding=view_encoding(view)
+            encoding=view_encoding(view),
         )
-
-        if stderr:
-            print('RustFmt error:', file=sys.stderr)
-            print(stderr, file=sys.stderr)
-            return
-
-        view.settings().set('translate_tabs_to_spaces', True)
 
         position = view.viewport_position()
 

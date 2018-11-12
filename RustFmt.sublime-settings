@@ -33,4 +33,9 @@
       useful for project-specific settings
   */
   "cwd_mode": "auto",
+
+  /*
+  If true (default), errors from `rustfmt` are shown as popups.
+  */
+  "error_messages": true,
 }
