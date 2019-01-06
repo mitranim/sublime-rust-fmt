@@ -1,41 +1,57 @@
 {
-  // If true, Format Buffer will be run when a buffer is saved.
+  /*
+  Format current buffer on save. Enabled by default.
+
+  Note that you can format the buffer manually via the "RustFmt: Format Buffer"
+  command.
+  */
   "format_on_save": true,
 
-  // Can be a string (path) or a list (executable + args).
-  "executable": "rustfmt",
-
   /*
-  Whether to tell `rustfmt` to search for the TOML config in the current
-  folder. For anonymous buffers, attempts to guess the current folder from
-  the window.
+  Executable with zero or more arguments.
+
+  When modifying this setting, ensure that the executable expects to
+  communicate over standard input/output.
+
+  For versions of `rustfmt` prior to 0.8.0, use:
+
+      "executable": ["rustfmt", "--write-mode", "display"]
   */
-  "use_config_path": true,
+  "executable": ["rustfmt"],
 
   /*
-  Whether to use the `--write-mode=display` option for older version of
-  `rustfmt` (before 0.8.0). Off by default.
+  Compatibility mode for versions of `rustfmt` prior to 0.8.0. Equivalent to:
+
+      "executable": ["rustfmt", "--write-mode", "display"]
   */
   "legacy_write_mode_option": false,
 
   /*
+  Whether to search for `rustfmt.toml` in the file's directory and its
+  ancestors. For anonymous buffers, "current directory" will be guessed from
+  the current window.
+  */
+  "use_config_path": true,
+
+  /*
   Determines the CWD of the subprocess. Possible values:
 
-    - "auto": try to use the current file's directory; fall back on the project
-      root, which is assumed to be the first folder in the current window
+    - "auto"         -- try to use the current file's directory; fall back on
+      the project root, which is assumed to be the first directory in the
+      current window
 
-    - "project_root": use the project root, which is assumed to be the first
-      folder in the current window
+    - "project_root" -- use the project root, which is assumed to be the first
+      directory in the current window
 
-    - "none": don't set the CWD
+    - "none"         -- don't set the CWD
 
-    - ":<dir>": use <dir>, which is assumed to be a hardcoded path; may be
-      useful for project-specific settings
+    - ":<path>"      -- use hardcoded path; may be useful for project-specific
+      settings
   */
   "cwd_mode": "auto",
 
   /*
-  If true (default), errors from `rustfmt` are shown as popups.
+  Show errors from `rustfmt` as popups. Enabled by default.
   */
   "error_messages": true,
 }

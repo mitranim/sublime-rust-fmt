@@ -8,10 +8,10 @@ Unlike `BeautifyRust`, it's fast and works on buffers that have yet not been sav
 
 Requires Sublime Text version 3124 or later.
 
-Requires [`rustfmt`](https://github.com/rust-lang-nursery/rustfmt) to be on [PATH](https://en.wikipedia.org/wiki/PATH_(variable)). Install it with Cargo:
+Requires [`rustfmt`](https://github.com/rust-lang/rustfmt) to be on [PATH](https://en.wikipedia.org/wiki/PATH_(variable)). Installation:
 
 ```sh
-cargo install rustfmt
+rustup component add rustfmt
 ```
 
 ## Installation
@@ -36,20 +36,21 @@ git clone https://github.com/mitranim/sublime-rust-format.git RustFmt
 
 ## Usage
 
-By default, RustFmt will autoformat files before save. You can trigger it manually with the `Ctrl+Super+k` hotkey or the `RustFmt: Format Buffer` command in the command palette.
+By default, RustFmt will autoformat files before saving. You can trigger it
+manually with the `RustFmt: Format Buffer` command in the command palette.
 
 If the plugin can't find the executable:
 
   * run `which rustfmt` to get the absolute executable path
   * set it as the `executable` setting, see [Settings](#settings) below
 
-On my MacOS system, the path looks like this:
+On MacOS, it might end up like this:
 
 ```sublime-settings
-  "executable": "/Users/username/.cargo/bin/rustfmt"
+  "executable": ["/Users/username/.cargo/bin/rustfmt"]
 ```
 
-`executable` also accepts a list of command line arguments:
+Can pass additional arguments:
 
 ```sublime-settings
   "executable": ["rustup", "run", "nightly", "rustfmt"]
@@ -73,14 +74,33 @@ The general Sublime settings take priority. To override them on a per-project ba
 ```sublime-settings
   "RustFmt": {
     "format_on_save": false
-  }
+  },
 ```
 
 ## Commands
 
-Open the command palette with `Shift+Super+P` or `Shift+Ctrl+P`.
+In Sublime's command palette:
 
-* `RustFmt: Format Buffer` (`Ctrl+Super+k`)
+* `RustFmt: Format Buffer`
+
+## Hotkeys
+
+To avoid potential conflicts, this plugin does not come with hotkeys. To hotkey
+the format command, add something like this to your `.sublime-keymap`:
+
+```sublime-keymap
+{
+  "keys": ["ctrl+super+k"],
+  "command": "rust_fmt_format_buffer",
+  "context": [
+    {
+      "key": "selector",
+      "operator": "equal",
+      "operand": "source.rust"
+    }
+  ]
+}
+```
 
 ## License
 

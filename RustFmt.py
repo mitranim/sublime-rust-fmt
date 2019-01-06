@@ -15,9 +15,9 @@ def is_rust_view(view):
 
 
 def get_setting(view, key):
-    global_dict = view.settings().get(DICT_KEY)
-    if isinstance(global_dict, dict) and key in global_dict:
-        return global_dict[key]
+    global_overrides = view.settings().get(DICT_KEY)
+    if isinstance(global_overrides, dict) and key in global_overrides:
+        return global_overrides[key]
     return sublime.load_settings(SETTINGS).get(key)
 
 
@@ -89,15 +89,11 @@ def run_format(view, input, encoding):
 
     if get_setting(view, 'legacy_write_mode_option'):
         args += ['--write-mode', 'display']
-    else:
-        args += ['--emit', 'stdout']
 
     if get_setting(view, 'use_config_path'):
-        path = view.file_name()
-
-        if not path:
-            if len(view.window().folders()):
-                path = view.window().folders()[0]
+        path = view.file_name() or (
+            len(view.window().folders()) and view.window().folders()[0] or None
+        )
 
         config = path and find_config_path(path)
         if config:
@@ -126,9 +122,13 @@ def run_format(view, input, encoding):
             # rustfmt stupidly prints error messages to stdout
             elif len(stdout) > 0:
                 msg += ':\n' + stdout
+            msg += '\nNote: to disable error popups, set the RustFmt setting "error_messages" to false.'
             sublime.error_message(msg)
 
         raise err
+
+    if len(stderr) > 0:
+        print('[rustfmt]:', stderr, file=sys.stderr)
 
     return stdout
 
