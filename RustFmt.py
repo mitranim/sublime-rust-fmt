@@ -3,7 +3,7 @@ import sublime_plugin
 import subprocess as sub
 import os
 import sys
-
+from . import difflib
 
 SETTINGS = 'RustFmt.sublime-settings'
 DICT_KEY = 'RustFmt'
@@ -83,6 +83,27 @@ def guess_cwd(view):
             return view.window().folders()[0]
 
 
+def merge_into_view(view, edit, new_src):
+    def subview(start, end):
+        return view.substr(sublime.Region(start, end))
+    diffs = difflib.myers_diffs(subview(0, view.size()), new_src)
+    difflib.cleanup_efficiency(diffs)
+    merged_len = 0
+    for (op_type, patch) in diffs:
+        patch_len = len(patch)
+        if op_type == difflib.Ops.EQUAL:
+            if subview(merged_len, merged_len+patch_len) != patch:
+                raise Exception("[sublime-rust-fmt] mismatch between diff's source and current content")
+            merged_len += patch_len
+        elif op_type == difflib.Ops.INSERT:
+            view.insert(edit, merged_len, patch)
+            merged_len += patch_len
+        elif op_type == difflib.Ops.DELETE:
+            if subview(merged_len, merged_len+patch_len) != patch:
+                raise Exception("[sublime-rust-fmt] mismatch between diff's source and current content")
+            view.erase(edit, sublime.Region(merged_len, merged_len+patch_len))
+
+
 def run_format(view, input, encoding):
     exec = get_setting(view, 'executable')
     args = exec if isinstance(exec, list) else [exec]
@@ -128,7 +149,7 @@ def run_format(view, input, encoding):
         raise err
 
     if len(stderr) > 0:
-        print('[rustfmt]:', stderr, file=sys.stderr)
+        print('[sublime-rust-fmt]:', stderr, file=sys.stderr)
 
     return stdout
 
@@ -152,13 +173,20 @@ class rust_fmt_format_buffer(sublime_plugin.TextCommand):
             encoding=view_encoding(view),
         )
 
-        position = view.viewport_position()
+        merge_type = get_setting(view, 'merge_type')
 
-        view.replace(edit, sublime.Region(0, view.size()), stdout)
+        if merge_type == 'diff':
+            merge_into_view(view, edit, stdout)
 
-        # Works only on the main thread, hence the timer
-        restore = lambda: view.set_viewport_position(position, animate=False)
-        sublime.set_timeout(restore, 0)
+        elif merge_type == 'replace':
+            position = view.viewport_position()
+            view.replace(edit, sublime.Region(0, view.size()), stdout)
+            # Works only on main thread, hence lambda and timer.
+            restore = lambda: view.set_viewport_position(position, animate=False)
+            sublime.set_timeout(restore, 0)
+
+        else:
+            raise Exception('[sublime-rust-fmt] unknown merge_type setting: {}'.format(merge_type))
 
 
 class rust_fmt_listener(sublime_plugin.EventListener):

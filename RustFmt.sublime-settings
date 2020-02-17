@@ -1,13 +1,5 @@
 {
   /*
-  Format current buffer on save. Enabled by default.
-
-  Note that you can format the buffer manually via the "RustFmt: Format Buffer"
-  command.
-  */
-  "format_on_save": true,
-
-  /*
   Executable with zero or more arguments.
 
   When modifying this setting, ensure that the executable expects to
@@ -18,6 +10,14 @@
       "executable": ["rustfmt", "--write-mode", "display"]
   */
   "executable": ["rustfmt"],
+
+  /*
+  Format current buffer on save. Enabled by default.
+
+  Note that you can format the buffer manually via the "RustFmt: Format Buffer"
+  command.
+  */
+  "format_on_save": true,
 
   /*
   Compatibility mode for versions of `rustfmt` prior to 0.8.0. Equivalent to:
@@ -54,4 +54,14 @@
   Show errors from `rustfmt` as popups. Enabled by default.
   */
   "error_messages": true,
+
+  /*
+  Determines how to replace the contents of the current buffer with the
+  formatted output. Possible values:
+
+    - "diff":    -- more complicated but better at preserving cursor position
+
+    - "replace": -- simpler but doesn't preserve cursor position
+  */
+  "merge_type": "diff"
 }

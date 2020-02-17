@@ -25,14 +25,21 @@ rustup component add rustfmt
 
 ### Manual
 
-1. Open Sublime Text menu → Preferences → Browse Packages. This should open
-   the packages folder in your OS file manager.
-
-2. Clone repo:
+Clone the repo:
 
 ```sh
-git clone https://github.com/mitranim/sublime-rust-format.git RustFmt
+git clone https://github.com/mitranim/sublime-rust-fmt.git
 ```
+
+Then symlink it to your Sublime packages directory. Example for MacOS:
+
+```sh
+mv sublime-rust-fmt RustFmt
+cd RustFmt
+ln -sf "$(pwd)" "$HOME/Library/Application Support/Sublime Text 3/Packages/"
+```
+
+To find the packages directory, use Sublime Text menu → Preferences → Browse Packages.
 
 ## Usage
 
@@ -92,13 +99,7 @@ the format command, add something like this to your `.sublime-keymap`:
 {
   "keys": ["ctrl+super+k"],
   "command": "rust_fmt_format_buffer",
-  "context": [
-    {
-      "key": "selector",
-      "operator": "equal",
-      "operand": "source.rust"
-    }
-  ]
+  "context": [{"key": "selector", "operator": "equal", "operand": "source.rust"}]
 }
 ```
 
