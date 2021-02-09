@@ -16,7 +16,7 @@ class Ops(object):
     INSERT = 'INSERT'
     DELETE = 'DELETE'
 
-Diff = namedtuple('Diff', ['op', 'text'], verbose=False)
+Diff = namedtuple('Diff', ['op', 'text'])
 
 # Cost of an empty edit operation in terms of edit characters.
 DIFF_EDIT_COST = 4
