@@ -8,6 +8,11 @@
   For versions of `rustfmt` prior to 0.8.0, use:
 
       "executable": ["rustfmt", "--write-mode", "display"]
+  
+  To tell `rustfmt` to use the 2018 edition globally, use:
+      
+      "executable": ["rustfmt", "--edition", "2018"]
+      
   */
   "executable": ["rustfmt"],
 
