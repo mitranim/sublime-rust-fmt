@@ -21,6 +21,15 @@ def get_setting(view, key):
     return sublime.load_settings(SETTINGS).get(key)
 
 
+def get_env(view):
+    val = get_setting(view, 'env')
+    if val is None:
+        return None
+    env = os.environ.copy()
+    env.update(val)
+    return env
+
+
 # Copied from other plugins, haven't personally tested on Windows
 def process_startup_info():
     if not IS_WINDOWS:
@@ -128,6 +137,7 @@ def run_format(view, input, encoding):
         startupinfo=process_startup_info(),
         universal_newlines=False,
         cwd=guess_cwd(view),
+        env=get_env(view),
     )
 
     (stdout, stderr) = proc.communicate(input=bytes(input, encoding=encoding))
